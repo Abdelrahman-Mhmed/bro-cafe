@@ -5,7 +5,7 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. WhatsApp Configuration
+  // 1. WhatsApp Configuration & Edge Widget
   const WHATSAPP_NUMBER = "201287066660"; // Bro Café WhatsApp business number
   const WHATSAPP_MESSAGE = "مرحباً BRO CAFÉ، أود الاستفسار والطلب من المنيو.";
 
@@ -23,6 +23,128 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
+
+  // 2. Google Maps Location Configuration
+  // If a location URL exists or is updated, set it here:
+  const GOOGLE_MAPS_LOCATION_URL = "https://maps.app.goo.gl/Dge2Zo9N89fN3LqJ9?g_st=aw"; // TODO: Paste your Google Maps URL here (e.g. "https://maps.app.goo.gl/...")
+
+  const locationBtn = document.getElementById("locationBtn");
+  if (locationBtn) {
+    if (GOOGLE_MAPS_LOCATION_URL && GOOGLE_MAPS_LOCATION_URL.trim() !== "") {
+      locationBtn.href = GOOGLE_MAPS_LOCATION_URL;
+      locationBtn.target = "_blank";
+      locationBtn.rel = "noopener noreferrer";
+    } else {
+      locationBtn.href = "#";
+      locationBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        alert(
+          "يرجى تعيين رابط موقع كافيه برو على خرائط جوجل في ملف script.js (متغير GOOGLE_MAPS_LOCATION_URL)."
+        );
+      });
+    }
+  }
+
+  // WhatsApp Edge Widget Behavioral State Machine
+  const whatsappWidget = document.getElementById("whatsappWidget");
+  const whatsappIndicator = document.getElementById("whatsappIndicator");
+  const whatsappCard = document.getElementById("whatsappCard");
+  const whatsappCloseBtn = document.getElementById("whatsappCloseBtn");
+
+  let whatsappScrollTimer = null;
+  let whatsappInactivityTimer = null;
+
+  function revealWhatsApp() {
+    if (!whatsappWidget) return;
+    whatsappWidget.classList.remove("is-scrolling");
+    whatsappWidget.classList.add("is-revealed");
+    resetWhatsAppInactivity(4500);
+  }
+
+  function collapseWhatsApp() {
+    if (!whatsappWidget) return;
+    whatsappWidget.classList.remove("is-revealed");
+    clearTimeout(whatsappInactivityTimer);
+  }
+
+  function resetWhatsAppInactivity(delay = 4500) {
+    clearTimeout(whatsappInactivityTimer);
+    whatsappInactivityTimer = setTimeout(() => {
+      collapseWhatsApp();
+    }, delay);
+  }
+
+  function handleWhatsAppScroll() {
+    if (!whatsappWidget) return;
+
+    // 1. User starts/continues scrolling -> hide widget toward screen edge
+    whatsappWidget.classList.add("is-scrolling");
+    whatsappWidget.classList.remove("is-revealed");
+    clearTimeout(whatsappInactivityTimer);
+
+    // 2. Debounce scrolling stop -> show the small edge indicator
+    clearTimeout(whatsappScrollTimer);
+    whatsappScrollTimer = setTimeout(() => {
+      if (whatsappWidget) {
+        whatsappWidget.classList.remove("is-scrolling");
+      }
+    }, 180);
+  }
+
+  // Indicator Click -> reveal full WhatsApp button
+  if (whatsappIndicator) {
+    whatsappIndicator.addEventListener("click", (e) => {
+      e.stopPropagation();
+      revealWhatsApp();
+    });
+  }
+
+  // Close Button Click -> collapse back to edge indicator
+  if (whatsappCloseBtn) {
+    whatsappCloseBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      collapseWhatsApp();
+    });
+  }
+
+  // Interaction inside revealed card -> pause/reset inactivity timer
+  if (whatsappCard) {
+    whatsappCard.addEventListener("mouseenter", () => {
+      clearTimeout(whatsappInactivityTimer);
+    });
+    whatsappCard.addEventListener("mouseleave", () => {
+      if (whatsappWidget && whatsappWidget.classList.contains("is-revealed")) {
+        resetWhatsAppInactivity(3500);
+      }
+    });
+    whatsappCard.addEventListener(
+      "touchstart",
+      () => {
+        clearTimeout(whatsappInactivityTimer);
+      },
+      { passive: true }
+    );
+    whatsappCard.addEventListener(
+      "touchend",
+      () => {
+        if (whatsappWidget && whatsappWidget.classList.contains("is-revealed")) {
+          resetWhatsAppInactivity(3500);
+        }
+      },
+      { passive: true }
+    );
+  }
+
+  // Click outside revealed widget -> collapse to indicator
+  document.addEventListener("click", (e) => {
+    if (
+      whatsappWidget &&
+      whatsappWidget.classList.contains("is-revealed") &&
+      !whatsappWidget.contains(e.target)
+    ) {
+      collapseWhatsApp();
+    }
+  });
 
   // DOM Elements
   const menuControlPanel = document.getElementById("menuControlPanel");
@@ -98,11 +220,47 @@ document.addEventListener("DOMContentLoaded", () => {
       isProgrammaticScrolling = false;
       updateScrollSpy();
     }
+    if (whatsappWidget) {
+      clearTimeout(whatsappScrollTimer);
+      whatsappWidget.classList.remove("is-scrolling");
+    }
   });
 
-  // 4. Back To Top Logic
+  // 4. Back To Top Logic & Dynamic Scroll Detection
+  const SCROLL_TOP_THRESHOLD = 150; // Threshold between 100-200px as requested
+
+  const getScrollTopPosition = () => {
+    return (
+      window.pageYOffset ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      window.scrollY ||
+      0
+    );
+  };
+
+  // Toggle Scroll-to-Top Button Visibility based on scroll position
+  const updateScrollTopVisibility = () => {
+    if (!scrollTopBtn) return;
+    const currentScroll = getScrollTopPosition();
+    if (currentScroll > SCROLL_TOP_THRESHOLD) {
+      scrollTopBtn.classList.add("is-visible");
+      scrollTopBtn.classList.remove("is-hidden");
+    } else {
+      scrollTopBtn.classList.remove("is-visible");
+      scrollTopBtn.classList.add("is-hidden");
+    }
+  };
+
   const handleScrollTop = (e) => {
     if (e) e.preventDefault();
+
+    // Immediately trigger slide back outside the screen edge
+    if (scrollTopBtn) {
+      scrollTopBtn.classList.remove("is-visible");
+      scrollTopBtn.classList.add("is-hidden");
+    }
+
     isProgrammaticScrolling = true;
 
     if (window.location.hash) {
@@ -118,6 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
     clearTimeout(scrollLockTimer);
     scrollLockTimer = setTimeout(() => {
       isProgrammaticScrolling = false;
+      updateScrollTopVisibility();
       if (activeMode === "all") {
         const allPill = document.querySelector('.cat-pill[data-filter="all"]');
         if (allPill && !allPill.classList.contains("active")) {
@@ -131,16 +290,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (scrollTopBtn) scrollTopBtn.addEventListener("click", handleScrollTop);
   if (footerScrollTop) footerScrollTop.addEventListener("click", handleScrollTop);
-
-  // Toggle Scroll-to-Top Button Visibility
-  const updateScrollTopVisibility = () => {
-    if (!scrollTopBtn) return;
-    if (window.scrollY > 280) {
-      scrollTopBtn.classList.remove("is-hidden");
-    } else {
-      scrollTopBtn.classList.add("is-hidden");
-    }
-  };
 
   // 5. Hero & Feature Jump Buttons
   if (heroMenuBtn) {
@@ -471,6 +620,8 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener(
     "scroll",
     () => {
+      handleWhatsAppScroll();
+      updateScrollTopVisibility();
       if (scrollSpyRaf) cancelAnimationFrame(scrollSpyRaf);
       scrollSpyRaf = requestAnimationFrame(updateScrollSpy);
     },

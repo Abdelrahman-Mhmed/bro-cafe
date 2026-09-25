@@ -206,6 +206,57 @@ body {
   z-index: 1;
 }
 
+/* Top Header Navigation (Location Button) */
+.hero-top-nav {
+  position: absolute;
+  top: calc(clamp(12px, 2.5vw, 20px) + env(safe-area-inset-top, 0px));
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.location-btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: rgba(20, 23, 31, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--gold-300);
+  border: 1px solid var(--gold-border);
+  padding: 0.45rem 1.05rem;
+  min-height: 44px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  cursor: pointer;
+}
+
+.location-btn:hover {
+  background: var(--gold-400);
+  color: #0c0e12;
+  border-color: var(--gold-400);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(223, 186, 115, 0.35);
+}
+
+.location-btn:active {
+  transform: translateY(0);
+}
+
+.location-btn .location-icon {
+  font-size: 1rem;
+  color: inherit;
+}
+
 .hero-content {
   position: relative;
   z-index: 2;
@@ -994,90 +1045,236 @@ body {
 }
 
 /* ==========================================================================
-   FLOATING ACTION BUTTONS (Positioned on Left in RTL to protect Menu text)
+   WHATSAPP EDGE WIDGET & BACK TO TOP BUTTON
    ========================================================================== */
-.floating-controls {
-  position: fixed;
-  bottom: clamp(14px, 3vw, 22px);
-  left: clamp(14px, 3vw, 22px);
-  right: auto;
-  z-index: 999;
-  display: flex;
-  flex-direction: column-reverse;
-  align-items: center;
-  gap: 0.75rem;
-}
 
-.whatsapp-fab {
-  width: clamp(48px, 10vw, 54px);
-  height: clamp(48px, 10vw, 54px);
-  border-radius: 50%;
-  background: #25d366;
-  color: #ffffff;
-  display: grid;
-  place-items: center;
-  font-size: clamp(1.5rem, 3.5vw, 1.75rem);
-  text-decoration: none;
-  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.45);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  position: relative;
-}
-
-.whatsapp-fab:hover {
-  transform: scale(1.08) translateY(-2px);
-  box-shadow: 0 12px 30px rgba(37, 211, 102, 0.65);
-}
-
-.fab-tooltip {
-  position: absolute;
-  left: 64px;
-  right: auto;
-  background: rgba(14, 16, 22, 0.95);
-  color: var(--text-white);
-  border: 1px solid rgba(37, 211, 102, 0.4);
-  padding: 0.3rem 0.75rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.78rem;
-  font-weight: 700;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateX(-6px);
-  transition: opacity var(--transition-fast), transform var(--transition-fast);
-  box-shadow: var(--shadow-sm);
-}
-
-.whatsapp-fab:hover .fab-tooltip {
-  opacity: 1;
-  transform: translateX(0);
-}
-
+/* 1. Back to Top Button (Edge-Hidden Minimal Design — Direct 1-Tap Action) */
 .scroll-top-btn {
-  width: clamp(40px, 8vw, 44px);
-  height: clamp(40px, 8vw, 44px);
-  border-radius: 50%;
+  position: fixed;
+  bottom: calc(clamp(76px, 12vh, 92px) + env(safe-area-inset-bottom, 0px));
+  left: calc(0px + env(safe-area-inset-left, 0px));
+  z-index: 990;
+  width: 54px;
+  height: 46px;
+  border-radius: 0 14px 14px 0;
   background: var(--bg-surface-elevated);
   color: var(--gold-300);
   border: 1px solid var(--gold-border);
-  display: grid;
-  place-items: center;
-  font-size: 0.95rem;
+  border-left: none;
+  direction: ltr; /* Ensure left-to-right geometry for the edge dock */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 11px;
+  font-size: 1rem;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: opacity var(--transition-fast), transform var(--transition-fast), background var(--transition-fast);
+  box-shadow: 2px 4px 14px rgba(0, 0, 0, 0.35);
+
+  /* DEFAULT / TOP OF PAGE: Completely hidden outside the viewport to the left */
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+
+  /* Smooth, fast, minimal slide transition */
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.2s ease,
+              visibility 0.25s,
+              background-color 0.18s ease,
+              color 0.18s ease;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-.scroll-top-btn:hover {
+/* VISIBLE STATE: Scrolled beyond threshold -> slides out to reveal only the intended visible portion */
+.scroll-top-btn.is-visible {
+  transform: translateX(-20px);
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.scroll-top-btn.is-visible:hover {
+  transform: translateX(-14px);
   background: var(--gold-400);
   color: #0c0e12;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(223, 186, 115, 0.4);
+  border-color: var(--gold-400);
 }
 
+.scroll-top-btn.is-visible:active {
+  transform: translateX(-17px);
+}
+
+/* Fallback hidden override */
 .scroll-top-btn.is-hidden {
-  opacity: 0;
-  transform: translateY(12px);
+  transform: translateX(-100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+/* 2. WhatsApp Edge Widget (Container anchored to the screen edge) */
+.whatsapp-widget {
+  position: fixed;
+  bottom: calc(clamp(16px, 3.5vw, 24px) + env(safe-area-inset-bottom, 0px));
+  left: calc(0px + env(safe-area-inset-left, 0px));
+  z-index: 995;
+  display: flex;
+  align-items: center;
   pointer-events: none;
+}
+
+/* Edge Indicator Handle (Visible when idle / scrolling stops) */
+.whatsapp-indicator {
+  pointer-events: auto;
+  min-width: 44px;
+  min-height: 44px;
+  width: 46px;
+  height: 46px;
+  background: #25d366;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-left: none;
+  border-radius: 0 14px 14px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  box-shadow: 2px 4px 14px rgba(0, 0, 0, 0.35);
+  transform: translateX(0);
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.2s ease,
+              background-color 0.18s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  padding: 0 4px 0 2px;
+}
+
+.whatsapp-indicator:hover {
+  background: #20bd5a;
+  transform: translateX(2px);
+}
+
+.whatsapp-indicator .indicator-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.whatsapp-indicator .indicator-arrow {
+  font-size: 0.65rem;
+  opacity: 0.85;
+  transition: transform 0.18s ease;
+}
+
+.whatsapp-indicator:hover .indicator-arrow {
+  transform: translateX(2px);
+}
+
+/* While Actively Scrolling: Hide almost completely inside the edge */
+.whatsapp-widget.is-scrolling .whatsapp-indicator {
+  transform: translateX(calc(-100% + 5px));
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* When Revealed: hide the indicator handle, reveal WhatsApp card */
+.whatsapp-widget.is-revealed .whatsapp-indicator {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Revealed WhatsApp Card / Button */
+.whatsapp-card {
+  position: absolute;
+  left: calc(clamp(10px, 2.5vw, 16px) + env(safe-area-inset-left, 0px));
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-18px);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.22s ease;
+  white-space: nowrap;
+}
+
+.whatsapp-widget.is-revealed .whatsapp-card {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+/* The actual clickable WhatsApp FAB */
+.whatsapp-fab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: #25d366;
+  color: #ffffff;
+  text-decoration: none;
+  height: 46px;
+  padding: 0 16px;
+  border-radius: 9999px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.92rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: background-color 0.18s ease,
+              transform 0.18s ease;
+  cursor: pointer;
+}
+
+.whatsapp-fab:hover {
+  background: #20bd5a;
+  transform: translateY(-1px);
+}
+
+.whatsapp-fab:active {
+  transform: translateY(1px);
+}
+
+.whatsapp-fab .fab-icon {
+  font-size: 1.35rem;
+}
+
+.whatsapp-fab .fab-text {
+  letter-spacing: 0.2px;
+}
+
+/* Close / Collapse Button */
+.whatsapp-close-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--bg-surface-elevated, #1a1e28);
+  color: var(--text-muted, #768390);
+  border: 1px solid var(--gold-border-subtle, rgba(223, 186, 115, 0.2));
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm, 0 4px 12px rgba(0, 0, 0, 0.35));
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.whatsapp-close-btn:hover {
+  background: var(--bg-card-hover, #202634);
+  color: var(--text-white, #ffffff);
+  transform: scale(1.06);
+}
+
+/* Accessibility: Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-indicator,
+  .whatsapp-card,
+  .whatsapp-fab,
+  .whatsapp-close-btn,
+  .scroll-top-btn {
+    transition: none !important;
+  }
 }
 
 /* ==========================================================================
@@ -1463,21 +1660,65 @@ body {
     white-space: nowrap;
   }
 
-  .floating-controls {
-    bottom: 12px;
-    left: 12px;
-    right: auto;
+  .hero-top-nav {
+    top: calc(8px + env(safe-area-inset-top, 0px));
   }
 
-  .whatsapp-fab {
-    width: 44px;
-    height: 44px;
-    font-size: 1.35rem;
+  .location-btn {
+    padding: 0.35rem 0.85rem;
+    font-size: 0.8rem;
+    min-height: 40px;
+    gap: 0.4rem;
+  }
+
+  .location-btn .location-icon {
+    font-size: 0.88rem;
   }
 
   .scroll-top-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 0.85rem;
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+    left: calc(0px + env(safe-area-inset-left, 0px));
+    width: 50px;
+    height: 44px;
+    padding-right: 9px;
+    font-size: 0.95rem;
+    transform: translateX(-100%);
+  }
+
+  .scroll-top-btn.is-visible {
+    transform: translateX(-19px);
+  }
+
+  .scroll-top-btn.is-visible:hover {
+    transform: translateX(-15px);
+  }
+
+  .whatsapp-widget {
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    left: calc(0px + env(safe-area-inset-left, 0px));
+  }
+
+  .whatsapp-indicator {
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .whatsapp-fab {
+    height: 42px;
+    padding: 0 13px;
+    font-size: 0.86rem;
+    gap: 0.45rem;
+  }
+
+  .whatsapp-fab .fab-icon {
+    font-size: 1.25rem;
+  }
+
+  .whatsapp-close-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
   }
 }

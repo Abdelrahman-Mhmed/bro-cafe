@@ -24,7 +24,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
 
-    <link rel="stylesheet" href="styles.css?v=2.1" />
+    <link rel="stylesheet" href="styles.css?v=2.5" />
   </head>
   <body>
     <!-- Background Ambient Glows -->
@@ -50,6 +50,22 @@
           loading="eager"
         />
         <div class="hero-gradient-mask"></div>
+      </div>
+
+      <!-- Top Header Navigation Controls -->
+      <div class="hero-top-nav container">
+        <a
+          id="locationBtn"
+          class="location-btn"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="موقع كافيه برو على الخريطة"
+          title="موقع كافيه برو على الخريطة"
+        >
+          <i class="fa-solid fa-location-dot location-icon" aria-hidden="true"></i>
+          <span class="location-btn-text">موقع الكافيه</span>
+        </a>
       </div>
 
       <div class="container hero-content">
@@ -1745,25 +1761,56 @@
       </div>
     </main>
 
-    <!-- Floating Action Buttons -->
-    <aside class="floating-controls" aria-label="أزرار التحكم السريع">
-      <a
-        id="whatsappFab"
-        class="whatsapp-fab"
-        href="#"
-        target="_blank"
-        rel="noopener noreferrer"
+    <!-- WhatsApp Edge Widget -->
+    <div id="whatsappWidget" class="whatsapp-widget" role="region" aria-label="واتساب برو كافيه">
+      <!-- Edge Indicator Handle (Visible when idle / scrolling stops) -->
+      <button
+        id="whatsappIndicator"
+        class="whatsapp-indicator"
+        type="button"
         aria-label="تواصل واطلب عبر واتساب مع برو كافيه"
         title="طلب واستفسار عبر واتساب"
       >
-        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
-        <span class="fab-tooltip">اطلب من واتساب</span>
-      </a>
-
-      <button id="scrollTopBtn" class="scroll-top-btn is-hidden" aria-label="الرجوع للأعلى" title="الرجوع للأعلى">
-        <i class="fa-solid fa-chevron-up"></i>
+        <i class="fa-brands fa-whatsapp indicator-icon" aria-hidden="true"></i>
+        <i class="fa-solid fa-chevron-right indicator-arrow" aria-hidden="true"></i>
       </button>
-    </aside>
+
+      <!-- Revealed WhatsApp Card -->
+      <div id="whatsappCard" class="whatsapp-card" aria-label="طلب عبر واتساب">
+        <a
+          id="whatsappFab"
+          class="whatsapp-fab"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="تواصل واطلب عبر واتساب مع برو كافيه"
+          title="طلب واستفسار عبر واتساب"
+        >
+          <i class="fa-brands fa-whatsapp fab-icon" aria-hidden="true"></i>
+          <span class="fab-text">اطلب من واتساب</span>
+        </a>
+        <button
+          id="whatsappCloseBtn"
+          class="whatsapp-close-btn"
+          type="button"
+          aria-label="إخفاء زر الواتساب"
+          title="إغلاق"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button
+      id="scrollTopBtn"
+      class="scroll-top-btn"
+      type="button"
+      aria-label="الرجوع للأعلى"
+      title="الرجوع للأعلى"
+    >
+      <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+    </button>
 
     <!-- Footer -->
     <footer class="footer">
